@@ -1,0 +1,4 @@
+source;share/roborio_msgs/local_setup.bash
+source;share/roborio_msgs/local_setup.dsv
+source;share/roborio_msgs/local_setup.sh
+source;share/roborio_msgs/local_setup.zsh
