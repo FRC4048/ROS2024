@@ -1,6 +1,0 @@
-{
-  "package_name": "roborio_msgs",
-  "non_idl_tuples": [
-    "/home/redshift/ros2_ws/src/roborio_msgs:msg/RoborioTags.msg"
-  ]
-}

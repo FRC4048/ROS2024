@@ -1,8 +1,0 @@
-setup.py
-roborio_msgs/__init__.py
-roborio_msgs.egg-info/PKG-INFO
-roborio_msgs.egg-info/SOURCES.txt
-roborio_msgs.egg-info/dependency_links.txt
-roborio_msgs.egg-info/top_level.txt
-roborio_msgs/msg/__init__.py
-roborio_msgs/msg/_roborio_tags.py
