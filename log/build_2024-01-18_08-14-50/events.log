@@ -1,5 +1,0 @@
-[0.000000] (-) TimerEvent: {}
-[0.000092] (-) JobUnselected: {'identifier': 'my_package'}
-[0.000117] (-) JobUnselected: {'identifier': 'roborio_msgs'}
-[0.000133] (-) JobUnselected: {'identifier': 'sush_py_pkg'}
-[0.000149] (-) EventReactorShutdown: {}
