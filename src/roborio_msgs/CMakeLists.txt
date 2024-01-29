@@ -11,7 +11,7 @@ find_package(rosidl_default_generators REQUIRED)
 
 rosidl_generate_interfaces(${PROJECT_NAME}
     "msg/RoborioTags.msg"
-##    "roborio_pose_msg"
+    "msg/RoborioOdometry.msg"
     )
     
 ament_export_dependencies(rosidl_default_runtime)

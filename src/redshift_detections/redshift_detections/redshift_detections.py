@@ -19,7 +19,7 @@ class RedshiftDetections(Node):
             10)
         self.subscription  # prevent unused variable warning
         
-        self.tag = [7, 8, 9, 10]
+        self.tag = [5, 7]
         self.tag_dict = {}
         for i in self.tag:
             self.tag_dict[i] = RoborioTags()
