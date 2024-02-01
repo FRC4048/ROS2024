@@ -18,7 +18,7 @@ class RedshiftOdomListener(Node):
         self.to_frame = 'logitech'
         
         # create PUBLISHER
-        self.publisher = self.create_publisher(RoborioOdometry, 'BZ', 1)
+        self.publisher = self.create_publisher(RoborioOdometry, '/BZ', 1)
         
         # create Listener
         self.prev_tf = TransformStamped()
@@ -31,14 +31,10 @@ class RedshiftOdomListener(Node):
 
     def get_pose(self):
         try:
-           #now=datetime.datetime.now()
-           #print(now.strftime("Before: %S.%f"))
            t = self.tf_buffer.lookup_transform(
                self.from_frame,
                self.to_frame,
                rclpy.time.Time())
-           #now=datetime.datetime.now()    
-           #print(now.strftime("After : %S.%f"))
            if ((t.header.stamp.nanosec != self.prev_tf.header.stamp.nanosec) or
               (t.header.stamp.sec != self.prev_tf.header.stamp.sec)):
               self.prev_tf.header = t.header
@@ -56,13 +52,6 @@ class RedshiftOdomListener(Node):
         except TransformException as ex:
            self.get_logger().info('could not transform')
            self.reset_pose()
-        
-        # check the timestamp of the transform
-        #now = self.get_clock().now().to_msg()        
-        #tf_time_str="{:010d}{:09d}".format(t.header.stamp.sec, t.header.stamp.nanosec)
-        #now_time_str="{:010d}{:09d}".format(now.sec, now.nanosec)
-        #time_diff = (float(now_time_str) - float(tf_time_str))/1000000000
-        #self.get_logger().info(now_time_str + " - " + tf_time_str + " = " + str(time_diff))
         
         self.publisher.publish(self.pose_msg)
         
