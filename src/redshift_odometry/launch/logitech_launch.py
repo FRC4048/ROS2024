@@ -14,19 +14,20 @@ def generate_launch_description():
         launch_ros.actions.Node(
             package='tf2_ros',
             executable='static_transform_publisher',
-            arguments=['0','2','0.74','0', '0', '1.57','world','tag11'],
-            name='tag11'),  
+            arguments=['0','2','0.74','0', '0', '1.57','world','tag5'],
+            name='tag5'),  
                 
         launch_ros.actions.Node(
             package="usb_cam",
             executable="usb_cam_node_exe",
             remappings=[("/image_raw", "/image")],
             parameters=[
-                {"video_device": "/dev/video2"},
+                {"video_device": "/dev/video0"},
                 {"camera_name": "logitech_cam"},
                 {"frame_id": "logitech"},
                 {"image_height": 480},
-                {"image_width": 640}
+                {"image_width": 640},
+                {"framerate": 30.0},
             ],
             name='sim'),     
             

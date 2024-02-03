@@ -34,7 +34,7 @@ class TFInverse(Node):
            msg_tf.transform.rotation.w = inv_rotation[3]
            msg_tf.header.frame_id = msg_tf.child_frame_id
            msg_tf.child_frame_id = "logitech"
-           self.publisher.publish(msg)
+        self.publisher.publish(msg)
 
     def inverse_tf(self, t):
         trans = [t.transform.translation.x, t.transform.translation.y, t.transform.translation.z]

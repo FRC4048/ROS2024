@@ -27,7 +27,7 @@ class RedshiftOdomListener(Node):
         self.pose_msg = RoborioOdometry()
         
         #get_pose callback every 1/15 sec (/tf hz)
-        self.timer = self.create_timer(0.06, self.get_pose)
+        self.timer = self.create_timer(0.02, self.get_pose)
 
     def get_pose(self):
         try:
