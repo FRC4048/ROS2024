@@ -1,7 +1,9 @@
 import rclpy
+import math
 from rclpy.node import Node
 from std_msgs.msg import String
 from apriltag_msgs.msg import AprilTagDetectionArray
+from apriltag_msgs.msg import AprilTagDetection
 
 from roborio_msgs.msg import RoborioTags
 
@@ -19,27 +21,54 @@ class RedshiftDetections(Node):
             10)
         self.subscription  # prevent unused variable warning
         
-        self.tag = [5, 7]
+        self.VIEW_ANGLE = 41
+        
+        self.tag = [5, 7, 11]
         self.tag_dict = {}
+        
+        self.roborio_msg = RoborioTags()
+        
+        
         for i in self.tag:
-            self.tag_dict[i] = RoborioTags()
-            self.tag_dict[i].x = -1.0
-            self.tag_dict[i].y = -1.0
-            self.tag_dict[i].tag = i
+            self.tag_dict[i] = AprilTagDetection()
+            self.tag_dict[i].centre.x = -1.0
+            self.tag_dict[i].centre.y = -1.0
+            self.tag_dict[i].corners[0].y = -1.0
+            self.tag_dict[i].corners[2].y = -2.0
+            self.tag_dict[i].id = i
+            
+        
 
 
     def detection(self, dets):
         for i in self.tag:
-            self.tag_dict[i].x = -1.0
-            self.tag_dict[i].y = -1.0
+            self.tag_dict[i].centre.x = -1.0
+            self.tag_dict[i].centre.y = -1.0
+            self.tag_dict[i].corners[0].y = -1.0
+            self.tag_dict[i].corners[2].y = -2.0
         for det in dets.detections:
-            self.tag_dict[det.id].x = det.centre.x
-            self.tag_dict[det.id].y = det.centre.y
-            self.get_logger().info('%s' % self.tag_dict[det.id].x)
+            self.tag_dict[det.id].centre.x = det.centre.x
+            self.tag_dict[det.id].centre.y = det.centre.y
+            self.tag_dict[det.id].corners[0].y = det.corners[0].y
+            self.tag_dict[det.id].corners[2].y = det.corners[2].y
+            self.get_logger().info('%s' % self.tag_dict[det.id].centre.x)
 
+    def distance_calc(self, det):
+        apriltag_height = abs(det.corners[0].y - det.corners[2].y)
+        print("angle: " + str(math.tan(math.radians(self.VIEW_ANGLE/2))))
+        print("height: " + str(apriltag_height))
+        print("corner1: " + str(det.corners[0].y))
+        print("corner2: " + str(det.corners[2].y))
+        return 1500.0/(math.tan(math.radians(self.VIEW_ANGLE/2))*apriltag_height)
+    	    
+    
     def publish_callback(self):
         for i in self.tag:
-       	   self.publisher.publish(self.tag_dict[i])
+            self.roborio_msg.tag = self.tag_dict[i].id
+            self.roborio_msg.x = self.tag_dict[i].centre.x
+            self.roborio_msg.y = self.tag_dict[i].centre.y
+            self.roborio_msg.distance = self.distance_calc(self.tag_dict[i])
+            self.publisher.publish(self.roborio_msg)
 
         
 def main(args=None):
