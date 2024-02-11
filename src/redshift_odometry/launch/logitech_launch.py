@@ -19,12 +19,13 @@ def generate_launch_description():
          {'image_width': 640},
          {'framerate': 30.0},
       ],
-      name='sim',  
+      name='cam_driver',  
    )
    
    image_proc_node = Node(
       package='image_proc',
       executable='image_proc',
+      name='rectify',      
    )
  
    apriltag_node = Node(

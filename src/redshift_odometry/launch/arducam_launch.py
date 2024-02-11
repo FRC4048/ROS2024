@@ -17,15 +17,16 @@ def generate_launch_description():
          {'frame_id': 'logitech'},
          {'image_height': 480},
          {'image_width': 640},
-         {'framerate': 100.0},
+         {'framerate': 60.0},
          {'pixel_format': 'mjpeg2rgb'},
       ],
-      name='sim',  
+      name='cam_driver',  
    )
    
    image_proc_node = Node(
       package='image_proc',
       executable='image_proc',
+      name='rectify',
    )
  
    apriltag_node = Node(

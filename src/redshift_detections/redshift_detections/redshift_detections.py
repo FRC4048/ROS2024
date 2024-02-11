@@ -11,7 +11,7 @@ class RedshiftDetections(Node):
 
     def __init__(self):
         super().__init__('subscriber')
-        self.publisher = self.create_publisher(RoborioTags, "/test_topic", 10)
+        self.publisher = self.create_publisher(RoborioTags, "/redshift/detection", 10)
         timer_period = 0.02
         self.timer = self.create_timer(timer_period, self.publish_callback)
         self.subscription = self.create_subscription(
@@ -23,7 +23,7 @@ class RedshiftDetections(Node):
         
         self.VIEW_ANGLE = 41
         
-        self.tag = [5, 7, 11]
+        self.tag = [5, 11]
         self.tag_dict = {}
         
         self.roborio_msg = RoborioTags()
@@ -38,8 +38,6 @@ class RedshiftDetections(Node):
             self.tag_dict[i].id = i
             
         
-
-
     def detection(self, dets):
         for i in self.tag:
             self.tag_dict[i].centre.x = -1.0
@@ -47,14 +45,16 @@ class RedshiftDetections(Node):
             self.tag_dict[i].corners[0].y = -1.0
             self.tag_dict[i].corners[2].y = -2.0
         for det in dets.detections:
-            self.tag_dict[det.id].centre.x = det.centre.x
-            self.tag_dict[det.id].centre.y = det.centre.y
-            self.tag_dict[det.id].corners[0].y = det.corners[0].y
-            self.tag_dict[det.id].corners[2].y = det.corners[2].y
-            self.get_logger().info('%s' % self.tag_dict[det.id].centre.x)
+            if det.id in self.tag_dict.keys():
+                self.tag_dict[det.id].centre.x = det.centre.x
+                self.tag_dict[det.id].centre.y = det.centre.y
+                self.tag_dict[det.id].corners[0].y = det.corners[0].y
+                self.tag_dict[det.id].corners[2].y = det.corners[2].y
+                self.get_logger().info('%s' % self.tag_dict[det.id].centre.x)
 
     def distance_calc(self, det):
         apriltag_height = abs(det.corners[0].y - det.corners[2].y)
+        print("distance: " + str(1500.0/(math.tan(math.radians(self.VIEW_ANGLE/2))*apriltag_height)))
         print("angle: " + str(math.tan(math.radians(self.VIEW_ANGLE/2))))
         print("height: " + str(apriltag_height))
         print("corner1: " + str(det.corners[0].y))
