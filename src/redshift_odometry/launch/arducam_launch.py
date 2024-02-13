@@ -5,7 +5,7 @@ from launch import LaunchDescription
 def generate_launch_description():
    ld = LaunchDescription()
 
-   parameter_file_path = "../../../misc/apriltag.yaml"
+   parameter_file_path = "/redshift/ros2_ws/misc/apriltag.yaml"
      
    usb_cam_node = Node(
       package='usb_cam',
@@ -33,7 +33,7 @@ def generate_launch_description():
       package='apriltag_ros',
       executable='apriltag_node',
       remappings=[('/tf', '/tf_camera')],            
-      parameters=['/home/redshift/ros2_ws/misc/apriltag.yaml'],
+      parameters=[parameter_file_path],
    )  
 
  

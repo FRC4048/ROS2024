@@ -1,13 +1,13 @@
 import rclpy
 import math
 import datetime
+import os
 from rclpy.node import Node
 from tf2_ros.buffer import Buffer
 from tf2_ros import TransformException
 from tf2_ros.transform_listener import TransformListener
 from tf2_msgs.msg import TFMessage
 from geometry_msgs.msg import TransformStamped
-from geometry_msgs.msg import Vector3
 from roborio_msgs.msg import RoborioOdometry
 import ntcore
 class RedshiftOdomListener(Node):
@@ -19,31 +19,46 @@ class RedshiftOdomListener(Node):
         self.to_frame = 'logitech'
         
         # create PUBLISHER
-        #self.publisher = self.create_publisher(Vector3, '/redshift/odometry', 2)
         self.publisher = self.create_publisher(RoborioOdometry, '/redshift/odometry', 2)
                 
-        # create Listener
+        # create LISTENER structures
         self.prev_tf = TransformStamped()
         self.tf_buffer = Buffer()
         self.tf_listener = TransformListener(self.tf_buffer, self)
-        #self.pose_msg = Vector3()
         self.pose_msg = RoborioOdometry()
-       
-        self.ros_publish = True
-        self.nt_publish = True
 
+        # SET VALUES FOR OPTIONAL PARMS
+        publish_frequency = 0.05
+
+        self.ros_publish = True
+        tmp = os.environ.get('PUB_ROS')
+        if (tmp in ('0', 'false', 'False', 'f', 'F')):
+           self.ros_publish = False
+        if (self.ros_publish):
+           self.get_logger().info('Publishing to ROS')
+
+        self.nt_publish = False
+        tmp = os.environ.get('PUB_NT')
+        if (tmp in ('1', 'true', 'True', 'TRUE', 't', 'T')):
+           self.nt_publish = True
+        if (self.nt_publish):
+           self.get_logger().info("Publishing to NETWORK TABLES")
+
+        # CREATE NETWORK TABLE CONNECTION AND PUBLISHER
         if (self.nt_publish):
             self.inst = ntcore.NetworkTableInstance.getDefault()
             self.inst.startClient4("ROS Client")
             self.inst.setServerTeam(4048)
             while not self.inst.isConnected():
                 pass
+            self.get_logger().info("Connected to NETWORK TABLES")
             self.table = self.inst.getTable("ROS")
             self.inst.startDSClient()
             self.odom_pub = self.table.getDoubleArrayTopic("Pos").publish()
         
         #get_pose callback every 1/15 sec (/tf hz)
-        self.timer = self.create_timer(0.05, self.get_pose)
+        self.timer = self.create_timer(publish_frequency, self.get_pose)
+        self.get_logger().info("Publishing frequency: {}".format(publish_frequency))
 
     def get_pose(self):
         try:
@@ -51,6 +66,7 @@ class RedshiftOdomListener(Node):
                self.from_frame,
                self.to_frame,
                rclpy.time.Time())
+           # If the transform we got is the same one as we already published, just publish -1
            if ((t.header.stamp.nanosec != self.prev_tf.header.stamp.nanosec) or
               (t.header.stamp.sec != self.prev_tf.header.stamp.sec)):
               self.prev_tf.header = t.header
@@ -66,16 +82,15 @@ class RedshiftOdomListener(Node):
               self.reset_pose()
                                 
         except TransformException as ex:
-           self.get_logger().info('could not transform')
+           self.get_logger().warning('Could not transform')
            self.reset_pose()
         #if (self.pose_msg.yaw != -1):
         #   print(self.pose_msg.yaw, end=" ")
-        
- 
-        if (self.nt_publish):       
+
+        if (self.nt_publish == True):
            self.odom_pub.set([self.pose_msg.x, self.pose_msg.y, self.pose_msg.yaw]) 
                   
-        if (self.ros_publish):      
+        if (self.ros_publish == True):
            self.publisher.publish(self.pose_msg)
            
     def reset_pose(self):
@@ -107,9 +122,7 @@ class RedshiftOdomListener(Node):
         
 def main(args=None):
     rclpy.init(args=args)
-
     listener = RedshiftOdomListener()
-
     rclpy.spin(listener)
 
 if __name__ == '__main__':

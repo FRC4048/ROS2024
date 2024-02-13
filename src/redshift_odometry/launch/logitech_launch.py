@@ -5,13 +5,12 @@ from launch import LaunchDescription
 def generate_launch_description():
    ld = LaunchDescription()
 
-   parameter_file_path = "../../../misc/apriltag.yaml"
+   parameter_file_path = "/redshift/ros2_ws/misc/apriltag.yaml"
      
    usb_cam_node = Node(
       package='usb_cam',
       executable='usb_cam_node_exe',
-      remappings=[('/image_raw', '/image'),
-                  ('/camera_info', '/camera_info_temp')],
+      remappings=[('/image_raw', '/image')],
       parameters=[
          {'--video_device': '/dev/video0'},
          {'camera_name': 'logitech_cam'},
@@ -21,12 +20,6 @@ def generate_launch_description():
          {'framerate': 30.0},
       ],
       name='cam_driver',  
-   )
-   
-   camera_info_node = Node(
-       package='redshift_odometry',
-       executable='redshift_camerainfo',
-       name='cam_info',
    )
    
    image_proc_node = Node(
@@ -39,7 +32,7 @@ def generate_launch_description():
       package='apriltag_ros',
       executable='apriltag_node',
       remappings=[('/tf', '/tf_camera')],            
-      parameters=['/home/redshift/ros2_ws/misc/apriltag.yaml'],
+      parameters=[parameter_file_path],
    )  
 
  
@@ -61,9 +54,8 @@ def generate_launch_description():
    ld.add_action(create_transform_node(16, 182.73, 146.19, 52.00, 5.76, 0.0, 1.57))   
    
    ld.add_action(usb_cam_node)  
-   ld.add_action(camera_info_node)
-   ld.add_action(image_proc_node)  
-   #ld.add_action(apriltag_node)  
+   ld.add_action(image_proc_node)
+   ld.add_action(apriltag_node)
        
    return ld
    

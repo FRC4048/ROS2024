@@ -28,4 +28,4 @@ COPY misc/logitech_cam.yaml .
 COPY misc/arducam_cam.yaml .
 
 WORKDIR /redshift
-CMD ["./redshift_entrypoint.sh", "ros2", "launch", "redshift_odometry", "arducam_launch.py"]
+CMD ["./redshift_entrypoint.sh"]
