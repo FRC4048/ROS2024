@@ -23,7 +23,7 @@ RUN source ./install/setup.bash \
     && colcon build
 
 #COPY MISC FILES
-WORKDIR /root/.ros
+WORKDIR /root/.ros/camera_info
 COPY misc/logitech_cam.yaml .
 COPY misc/arducam_cam.yaml .
 
