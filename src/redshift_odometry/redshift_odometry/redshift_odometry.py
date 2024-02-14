@@ -10,8 +10,12 @@ from tf2_msgs.msg import TFMessage
 from geometry_msgs.msg import TransformStamped
 from roborio_msgs.msg import RoborioOdometry
 import ntcore
-class RedshiftOdomListener(Node):
 
+# this node finds the location of the camera on the field, by getting the transform
+# from world->camera from the buffer.
+# It then publishes it to either NT or ROS or both.
+
+class RedshiftOdomListener(Node):
     def __init__(self):
         super().__init__('subscriber')
         

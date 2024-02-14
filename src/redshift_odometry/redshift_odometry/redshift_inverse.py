@@ -6,6 +6,9 @@ import numpy as np
 import math
 import tf_transformations as tft
 
+# This node takes a transform published by apriltag_ros from camera->tag, and transforms
+# it to be tag->camera. We have to do that to maintain a tree structure.
+
 class TFInverse(Node):
 
     def __init__(self):
@@ -38,22 +41,16 @@ class TFInverse(Node):
 
     def inverse_tf(self, t):
         trans = [t.transform.translation.x, t.transform.translation.y, t.transform.translation.z]
-        #print("trans1" + str(trans))         
         rot = [t.transform.rotation.x, t.transform.rotation.y, t.transform.rotation.z, t.transform.rotation.w]
-        #print("rot1" + str(rot))               
         transform = tft.concatenate_matrices(tft.translation_matrix(trans), tft.quaternion_matrix(rot))
         inversed_transform = tft.inverse_matrix(transform)
         inversed_translation = tft.translation_from_matrix(inversed_transform)
-        #print("trans2" + str(inversed_translation))
         inversed_rotation = tft.quaternion_from_matrix(inversed_transform)
-        #print("rot2" + str(inversed_rotation))
         return(inversed_translation, inversed_rotation)
                 
 def main(args=None):
     rclpy.init(args=args)
-
     subscriber = TFInverse()
-
     rclpy.spin(subscriber)
 
 if __name__ == '__main__':
