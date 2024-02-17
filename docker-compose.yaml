@@ -17,8 +17,6 @@ services:
       test: "'$(docker container inspect -f '{{.State.Running}}' ros-monitor )' = 'false'"
       interval: "0h0m1s"
       retries: 2
-    devices:
-      - /dev/video0
     ipc: host
     command: ["./start-logitech.sh"]
     restart: always

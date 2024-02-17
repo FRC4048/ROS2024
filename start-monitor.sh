@@ -5,4 +5,4 @@ set -e
 source "/opt/ros/$ROS_DISTRO/setup.bash" --
 source ./ros2_ws/install/setup.bash --
 #start
-ros2 run redshift_odometry redshift_inverse
+ros2 run redshift_monitor redshift_monitor
