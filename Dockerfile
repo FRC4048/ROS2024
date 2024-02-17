@@ -13,6 +13,8 @@ RUN apt update && apt install -y python3-pip
 RUN pip3 install transforms3d
 RUN pip3 install pyntcore
 
+ENV ROS_DISTRO = "humble"
+
 # COPY Contents
 WORKDIR /redshift
 COPY contents .

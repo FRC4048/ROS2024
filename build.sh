@@ -12,6 +12,6 @@ cp -r install contents/ros2_ws
 cp redshift_entrypoint.sh contents
 chmod +x contents/redshift_entrypoint.sh
 
-docker build --platform linux/arm64 -t frc4048-ros2 .
+docker build --platform linux/amd64 -t frc4048-ros2 .
 
 docker save frc4048-ros2 -o frc4048-ros2.tar
