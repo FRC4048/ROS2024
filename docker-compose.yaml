@@ -1,0 +1,53 @@
+version: "3"
+services:
+  monitor:
+    container_name: ros-monitor
+    image: frc4048-ros2
+    network_mode: host
+    ipc: host
+    privileged: true
+    command: ["./start-monitor.sh"]
+    restart: always
+  camera:
+    container_name: camera
+    image: "frc4048-ros2"
+    network_mode: host
+    ipc: host
+    privileged: true
+    labels:
+      - autoheal = true
+    healthcheck:
+      test: "'$(docker container inspect -f '{{.State.Running}}' ros-monitor )' = 'false'"
+      interval: "0h0m1s"
+      retries: 2
+    devices:
+      - /dev/video0
+    command: ["./start-logitech.sh"]
+    restart: always
+  inverse:
+    container_name: inverse
+    image: "frc4048-ros2"
+    network_mode: host
+    privileged: true
+    ipc: host
+    command: ["./start-inverse.sh"]
+    restart: unless-stopped
+  odometry:
+    container_name: odometry
+    image: "frc4048-ros2"
+    network_mode: host
+    ipc: host
+    privileged: true
+    environment:
+      - PUB_ROS=0
+      - PUB_NT=1
+    command: ["./start-odometry.sh"]
+    restart: unless-stopped
+  autoheal:
+    container_name: healer
+    image: "willfarrell/autoheal"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    environment:
+      - AUTOHEAL_INTERVAL=1
+    restart: always
