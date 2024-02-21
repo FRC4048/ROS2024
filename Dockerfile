@@ -11,7 +11,7 @@ RUN apt update && apt install -y ros-humble-v4l2-camera
 RUN apt update && apt install -y python3
 RUN apt update && apt install -y python3-pip
 RUN pip3 install transforms3d
-RUN pip3 install pyntcore
+RUN pip3 install --find-links https://tortall.net/~robotpy/wheels/2023/raspbian/ pyntcore
 
 ENV ROS_DISTRO="humble"
 
