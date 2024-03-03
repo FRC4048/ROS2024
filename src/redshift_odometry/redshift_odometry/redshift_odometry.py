@@ -81,7 +81,7 @@ class RedshiftOdomListener(Node):
                                    t.transform.rotation.y, 
                                    t.transform.rotation.z, 
                                    t.transform.rotation.w)
-              self.pose_msg.yaw = math.degrees(yaw)-90
+              self.pose_msg.yaw = math.degrees(yaw)+90
            else:
               self.reset_pose()
                                 
