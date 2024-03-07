@@ -52,9 +52,7 @@ class RedshiftLifesigns(Node):
                   
         if (self.ros_publish == True):
            self.publisher.publish(self.lifesigns_counter)
-           
-        print(self.lifesigns_counter.data)
-        
+
 def main(args=None):
     rclpy.init(args=args)
     publisher = RedshiftLifesigns()
