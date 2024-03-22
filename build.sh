@@ -10,7 +10,9 @@ cp -r misc contents/ros2_ws
 cp -r src contents/ros2_ws
 cp -r install contents/ros2_ws
 cp redshift_entrypoint.sh contents
+cp start-*.sh contents
 chmod +x contents/redshift_entrypoint.sh
+chmod +x contents/start-*.sh
 
 docker build --platform linux/arm64 -t frc4048-ros2 .
 
