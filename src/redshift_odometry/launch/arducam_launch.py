@@ -71,7 +71,7 @@ def create_transform_node(tag, x, y, z, yaw, pitch, roll):
       arguments=[
          '--x', str(x*0.0254),
          '--y', str(y*0.0254),
-         '--z', str(z*0.0254),
+         '--z', str((z-15.0)*0.0254),
          '--roll', str(roll),
          '--pitch', str(pitch),
          '--yaw', str(yaw),
