@@ -2,9 +2,9 @@ import rclpy
 import os
 import ntcore
 from rclpy.node import Node
-from std_msgs.msg import UInt16
 from apriltag_msgs.msg import AprilTagDetectionArray
 from apriltag_msgs.msg import AprilTagDetection
+from roborio_msgs.msg import RoborioTags
 
 class RedshiftDetections(Node):
 
@@ -36,10 +36,10 @@ class RedshiftDetections(Node):
             self.get_logger().info("Connected to NETWORK TABLES")
             self.table = self.inst.getTable("ROS")
             self.inst.startDSClient()
-            self.detection_pub = self.table.getIntegerTopic("apriltag_id").publish()
+            self.detection_pub = self.table.getIntegerArrayTopic("apriltag_id").publish()
         
         
-        self.publisher = self.create_publisher(UInt16, "/redshift/apriltag_id", 10)
+        self.publisher = self.create_publisher(RoborioTags, "/redshift/apriltag_id", 10)
         timer_period = 0.02
         self.timer = self.create_timer(timer_period, self.publish_callback)
         self.subscription = self.create_subscription(
@@ -50,25 +50,30 @@ class RedshiftDetections(Node):
         self.subscription  # prevent unused variable warning
         
         self.tag = [1,2,3,4,5,6,7,8,9,10,11, 12, 13, 14, 15, 16]
-        self.roborio_msg = UInt16()
+        self.roborio_msg = RoborioTags()
         self.seen = 0
+        self.seen_stamp = self.get_clock().now()
+        self.curr_stamp = self.seen_stamp
             
         
     def detection(self, dets):
-        seen = 0 
-        for det in dets.detections:
-            if det.id in self.tag:
-                seen = det.id
-        self.seen = seen       
-
+        self.curr_stamp = rclpy.time.Time.from_msg(dets.header.stamp)
+        if (len(dets.detections) > 0):
+           self.seen = dets.detections[0].id
+           self.seen_stamp = rclpy.time.Time.from_msg(dets.header.stamp)
+              
     	    
     
     def publish_callback(self):
+        diff = self.curr_stamp - self.seen_stamp
+        latency = round(diff.nanoseconds/1e6)
         if (self.ros_publish):
-            self.roborio_msg.data = self.seen
+            self.roborio_msg.tag = self.seen
+            self.roborio_msg.latency = latency
             self.publisher.publish(self.roborio_msg)
         if (self.nt_publish):
-           self.detection_pub.set(self.seen) 
+           self.get_logger().info("Seen="+str(self.seen)+", latency="+str(latency))
+           self.detection_pub.set([self.seen, latency])            
         
 def main(args=None):
     rclpy.init(args=args)
