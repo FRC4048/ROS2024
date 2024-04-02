@@ -72,8 +72,7 @@ class RedshiftDetections(Node):
             self.roborio_msg.latency = latency
             self.publisher.publish(self.roborio_msg)
         if (self.nt_publish):
-           self.get_logger().info("Seen="+str(self.seen)+", latency="+str(latency))
-           self.detection_pub.set([self.seen, latency])            
+           self.detection_pub.set([self.seen, latency])
         
 def main(args=None):
     rclpy.init(args=args)
