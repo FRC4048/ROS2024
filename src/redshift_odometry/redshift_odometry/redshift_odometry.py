@@ -2,6 +2,7 @@ import rclpy
 import math
 import datetime
 import os
+import time
 from rclpy.node import Node
 from tf2_ros.buffer import Buffer
 from tf2_ros import TransformException
@@ -32,7 +33,7 @@ class RedshiftOdomListener(Node):
         self.pose_msg = RoborioOdometry()
 
         # SET VALUES FOR OPTIONAL PARMS
-        publish_frequency = 0.05
+        publish_frequency = 0.02
 
         self.ros_publish = True
         tmp = os.environ.get('PUB_ROS')
@@ -47,6 +48,7 @@ class RedshiftOdomListener(Node):
            self.nt_publish = True
         if (self.nt_publish):
            self.get_logger().info("Publishing to NETWORK TABLES")
+
 
         # CREATE NETWORK TABLE CONNECTION AND PUBLISHER
         if (self.nt_publish):
@@ -82,6 +84,9 @@ class RedshiftOdomListener(Node):
                                    t.transform.rotation.z, 
                                    t.transform.rotation.w)
               self.pose_msg.yaw = math.degrees(yaw)+90
+              
+              diff = self.get_clock().now() - rclpy.time.Time.from_msg(t.header.stamp)
+              self.pose_msg.latency = round(diff.nanoseconds/1e6)
            else:
               self.reset_pose()
                                 
@@ -92,7 +97,7 @@ class RedshiftOdomListener(Node):
         #   print(self.pose_msg.yaw, end=" ")
 
         if (self.nt_publish == True):
-           self.odom_pub.set([self.pose_msg.x, self.pose_msg.y, self.pose_msg.yaw]) 
+           self.odom_pub.set([self.pose_msg.x, self.pose_msg.y, self.pose_msg.yaw, self.pose_msg.latency]) 
                   
         if (self.ros_publish == True):
            self.publisher.publish(self.pose_msg)
@@ -100,7 +105,8 @@ class RedshiftOdomListener(Node):
     def reset_pose(self):
        self.pose_msg.x = -1.0
        self.pose_msg.y = -1.0
-       self.pose_msg.yaw = -1.0       
+       self.pose_msg.yaw = -1.0  
+       self.pose_msg.latency = -1     
         
     def euler_from_quaternion(self, x, y, z, w):
         """
