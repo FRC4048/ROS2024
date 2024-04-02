@@ -49,7 +49,7 @@ class RedshiftDetections(Node):
             10)
         self.subscription  # prevent unused variable warning
         
-        self.tag = [11, 12, 13, 14, 15, 16]
+        self.tag = [1,2,3,4,5,6,7,8,9,10,11, 12, 13, 14, 15, 16]
         self.roborio_msg = UInt16()
         self.seen = 0
             
