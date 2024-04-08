@@ -27,6 +27,9 @@ class TFInverse(Node):
 
     def tf_callback(self, msg):
         for msg_tf in msg.transforms:
+           #self.get_logger().info("time="+str(msg_tf.header.stamp))
+           #self.get_logger().info("clock="+str(self.get_clock().now()))
+           
            inv_translation, inv_rotation = self.inverse_tf(msg_tf)
            msg_tf.transform.translation.x = inv_translation[0]
            msg_tf.transform.translation.y = inv_translation[1]
@@ -37,6 +40,7 @@ class TFInverse(Node):
            msg_tf.transform.rotation.w = inv_rotation[3]
            msg_tf.header.frame_id = msg_tf.child_frame_id
            msg_tf.child_frame_id = "logitech"
+           msg_tf.header.stamp = self.get_clock().now().to_msg()
         self.publisher.publish(msg)
 
     def inverse_tf(self, t):
