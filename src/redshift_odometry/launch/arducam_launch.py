@@ -7,21 +7,33 @@ def generate_launch_description():
 
    parameter_file_path = "/redshift/ros2_ws/misc/apriltag.yaml"
      
-   usb_cam_node = Node(
-      package='usb_cam',
-      executable='usb_cam_node_exe',
-      remappings=[('/image_raw', '/image')],
-      parameters=[
-         {'--video_device': '/dev/video0'},
-         {'camera_name': 'arducam_cam'},
-         {'frame_id': 'logitech'},
-         {'image_height': 480},
-         {'image_width': 640},
-         {'framerate': 60.0},
-         {'pixel_format': 'mjpeg2rgb'},
-      ],
-      name='cam_driver',  
-   )
+#    usb_cam_node = Node(
+#       package='usb_cam',
+#       executable='usb_cam_node_exe',
+#       remappings=[('/image_raw', '/image')],
+#       parameters=[
+#          {'--video_device': '/dev/video0'},
+#          {'camera_name': 'arducam_cam'},
+#          {'frame_id': 'logitech'},
+#          {'image_height': 480},
+#          {'image_width': 640},
+#          {'framerate': 60.0},
+#          {'pixel_format': 'mjpeg2rgb'},
+#       ],
+#       name='cam_driver',
+#   )
+    usb_cam_node = Node(
+          package='opencv_cam',
+          executable='opencv_cam_main',
+          remappings=[('/image_raw', '/image')],
+          parameters=[
+             {'camera_frame': 'logitech'},
+             {'height': 480},
+             {'width': 640},
+             {'fps': 60.0},
+          ],
+          name='cam_driver',
+    )
    
    image_proc_node = Node(
       package='image_proc',

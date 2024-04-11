@@ -13,6 +13,8 @@ cp redshift_entrypoint.sh contents
 cp start-*.sh contents
 chmod +x contents/redshift_entrypoint.sh
 chmod +x contents/start-*.sh
+git clone https://github.com/clydemcqueen/opencv_cam contents/ros2_ws/src/opencv_cam/
+git clone https://github.com/ptrmu/ros2_shared.git contents/ros2_ws/src/ros2_shared/
 
 docker build --platform linux/arm64 -t frc4048-ros2 .
 
