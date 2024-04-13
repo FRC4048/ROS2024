@@ -25,8 +25,11 @@ def generate_launch_description():
    
    image_proc_node = Node(
       package='image_proc',
-      executable='image_proc',
+      executable='rectify_node',
       name='rectify',
+      parameters = [
+          {'queue_size': 10}
+      ]
    )
  
    apriltag_node = Node(
