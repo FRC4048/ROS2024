@@ -22,11 +22,15 @@ def generate_launch_description():
       ],
       name='cam_driver',  
    )
-   
+
+#   https://docs.ros.org/en/rolling/p/image_proc/components.html#image-proc-rectifynode
    image_proc_node = Node(
       package='image_proc',
-      executable='image_proc',
+      executable='rectify_node',
       name='rectify',
+      parameters = [
+          {'queue_size': 10}
+      ]
    )
  
    apriltag_node = Node(
