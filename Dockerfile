@@ -4,7 +4,8 @@ SHELL [ "/bin/bash" , "-c" ]
 RUN apt update && apt install -y build-essential
 RUN apt update && apt install -y ros-humble-usb-cam
 RUN apt update && apt install -y ros-humble-image-proc
-RUN apt update && apt install -y ros-humble-apriltag-ros
+RUN apt update && apt install -y ros-humble-apriltag-msgs
+RUN apt update && apt install -y ros-humble-apriltag
 RUN apt update && apt install -y ros-humble-tf-transformations
 RUN apt update && apt install -y ros-humble-tf2
 RUN apt update && apt install -y ros-humble-v4l2-camera
@@ -23,6 +24,13 @@ COPY contents .
 WORKDIR ros2_ws
 RUN source ./install/setup.bash \
     && colcon build
+
+#BUILD APRILTAG_ROS
+WORKDIR /redshift
+RUN tar -xvf ros2_ws/misc/apriltag_ros.tar
+
+WORKDIR ros2_ws_apriltag
+RUN source /opt/ros/humble/setup.bash && colcon build
 
 #COPY MISC FILES
 WORKDIR /root/.ros/camera_info
