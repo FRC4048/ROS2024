@@ -11,6 +11,12 @@ from tf2_msgs.msg import TFMessage
 from geometry_msgs.msg import TransformStamped
 from roborio_msgs.msg import RoborioOdometry
 import ntcore
+import time
+import struct
+import socket
+
+RIO_ADDRESS = '10.40.48.2'
+RIO_PORT = 5806
 
 # this node finds the location of the camera on the field, by getting the transform
 # from world->camera from the buffer.
@@ -19,9 +25,10 @@ import ntcore
 class RedshiftOdomListener(Node):
     def __init__(self):
         super().__init__('subscriber')
-        
+
         self.from_frame = 'world'
         self.to_frame = 'logitech'
+
         
         # create PUBLISHER
         self.publisher = self.create_publisher(RoborioOdometry, '/redshift/odometry', 2)
@@ -61,7 +68,14 @@ class RedshiftOdomListener(Node):
             self.table = self.inst.getTable("ROS")
             self.inst.startDSClient()
             self.odom_pub = self.table.getDoubleArrayTopic("Pos").publish()
-        
+            socketConnected = false
+            while(socketConnected == false):
+                try:
+                    self.socket = socket.socket(socket.AF_INET, socket.SOCK_STEAM)
+                    socketConnected = true
+                except ConnectionRefusedError:
+                    socketConnected = false
+                    time.sleep(0.1)
         #get_pose callback every 1/15 sec (/tf hz)
         self.timer = self.create_timer(publish_frequency, self.get_pose)
         self.get_logger().info("Publishing frequency: {}".format(publish_frequency))
@@ -97,7 +111,10 @@ class RedshiftOdomListener(Node):
         #   print(self.pose_msg.yaw, end=" ")
 
         if (self.nt_publish == True):
-           self.odom_pub.set([self.pose_msg.x, self.pose_msg.y, self.pose_msg.yaw, self.pose_msg.latency]) 
+            msg = [self.pose_msg.x, self.pose_msg.y, self.pose_msg.yaw, self.pose_msg.latency]
+            data = struct.pack("!{}d".format(len(msg)), *msg)
+            self.socket.sendAll(data)
+            self.odom_pub.set(msg)
                   
         if (self.ros_publish == True):
            self.publisher.publish(self.pose_msg)
