@@ -10,12 +10,12 @@ from tf2_ros.transform_listener import TransformListener
 from tf2_msgs.msg import TFMessage
 from geometry_msgs.msg import TransformStamped
 from roborio_msgs.msg import RoborioOdometry
-import ntcore
 import time
 import struct
 import socket
 
 RIO_ADDRESS = '10.40.48.2'
+# RIO_ADDRESS = '1127.0.0.1' when testing local
 RIO_PORT = 5806
 
 # this node finds the location of the camera on the field, by getting the transform
@@ -59,22 +59,15 @@ class RedshiftOdomListener(Node):
 
         # CREATE NETWORK TABLE CONNECTION AND PUBLISHER
         if (self.nt_publish):
-            self.inst = ntcore.NetworkTableInstance.getDefault()
-            self.inst.startClient4("ROS Client")
-            self.inst.setServerTeam(4048)
-            while not self.inst.isConnected():
-                pass
-            self.get_logger().info("Connected to NETWORK TABLES")
-            self.table = self.inst.getTable("ROS")
-            self.inst.startDSClient()
-            self.odom_pub = self.table.getDoubleArrayTopic("Pos").publish()
-            socketConnected = false
-            while(socketConnected == false):
+            self.socketConnected = False
+            self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            while(self.socketConnected == False):
                 try:
-                    self.socket = socket.socket(socket.AF_INET, socket.SOCK_STEAM)
-                    socketConnected = true
+                    self.socket.connect((RIO_ADDRESS, RIO_PORT))
+                    self.socketConnected = True
                 except ConnectionRefusedError:
-                    socketConnected = false
+                    self.socketConnected = False
+                    self.get_logger().warning("Could not connect to socket. Trying again...")
                     time.sleep(0.1)
         #get_pose callback every 1/15 sec (/tf hz)
         self.timer = self.create_timer(publish_frequency, self.get_pose)
@@ -111,11 +104,11 @@ class RedshiftOdomListener(Node):
         #   print(self.pose_msg.yaw, end=" ")
 
         if (self.nt_publish == True):
-            msg = [self.pose_msg.x, self.pose_msg.y, self.pose_msg.yaw, self.pose_msg.latency]
-            data = struct.pack("!{}d".format(len(msg)), *msg)
-            self.socket.sendAll(data)
-            self.odom_pub.set(msg)
-                  
+            if (self.socketConnected == True):
+                msg = [self.pose_msg.x, self.pose_msg.y, self.pose_msg.yaw, self.pose_msg.latency]
+                data = struct.pack("!{}d".format(len(msg)), *msg)
+                self.socket.sendall(data)
+
         if (self.ros_publish == True):
            self.publisher.publish(self.pose_msg)
            
